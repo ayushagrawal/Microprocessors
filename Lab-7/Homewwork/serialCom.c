@@ -1,11 +1,13 @@
 // Baud Rate = 1200
-// Timer 1 Reload Value = E6H
+// External Clock = 24MHz
+// Value = 256 - (24e6/(12*32*1200))
+// Timer 1 Reload Value = CCH
 
-////////// IMPORTING THE REQUIRED LIBRARY \\\\\\\\\\\\
+/********* IMPORTING THE REQUIRED LIBRARY *************/
 
 #include "AT89c5131.h"
 
-////////// Defining the Function for timer initializing \\\\\\\\\\
+/********* Defining the Function for timer initializing **********/
 
 void timer1_init()
 {
@@ -21,8 +23,8 @@ void timer1_init()
 	TMOD = TMOD & 0x2F;		// Making only the desired bits to be '0'
 	
 	// Setting up the baud rate (2.)
-	TH1  = 0xE6;
-	TL1  = 0xE6;
+	TH1  = 0xCC;
+	TL1  = 0xCC;
 	
 	// Disabling the Interrupt (3.)
 	// IE = xxxx 0xxx
@@ -31,4 +33,9 @@ void timer1_init()
 	// Enabling the Timer1
 	// TCON = 1xxx xxxx
 	TCON = TCON | 0x80;
+}
+
+void main()
+{
+	timer1_init();
 }
