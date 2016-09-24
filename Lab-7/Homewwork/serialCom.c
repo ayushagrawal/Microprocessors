@@ -7,11 +7,11 @@
 
 #include "AT89c5131.h"
 
-/********* Defining the Function for timer initializing **********/
-
+/********* Defining the Function for Timer 1 Initialization **********/
+// NOTE : Timer 1 is automatically used by serial communication in the way it is configured
 void timer1_init()
 {
-	// Required Conditions:
+	// Setup Parameters:
 	// 1. Mode 2 - Auto Reload Mode
 	// 2. TH1 = E6H for baud rate of 1200 Hz
 	// 3. No Interrupt
@@ -35,7 +35,29 @@ void timer1_init()
 	TCON = TCON | 0x80;
 }
 
+void serial_init()
+{
+	// Setup Parameters:
+	// 1. Enable the Interrupt
+	// 2. Enable even parity
+	// 3. Enable the recieving pin
+	
+	// Configuring the Serial Register(2. & 3.)
+	// SM0 = 1 for sending the Data Bit
+	// SM1 = 1 for fixed baud rate
+	// SM2 = 0 for not having multiprocessor communication 
+	// REN = 1 Recieve Enable
+	SCON = SCON | 0xD0;
+	
+	// Eabling the Interrupt (1.)
+	// IE = 1xx1 xxxx
+	IEN0 =  IEN0 | 0x90;
+	
+	// NOTE: 'RI' AND 'TI' MUST BE CLEARED MANUALLY
+}
+
 void main()
 {
 	timer1_init();
+	serial_init();
 }
