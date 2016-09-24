@@ -7,6 +7,10 @@
 
 #include "AT89c5131.h"
 
+/* Global Variables */
+char acc;			// Used for parity bit's calculation
+sbit LED0 = P1^7;
+
 /********* Defining the Function for Timer 1 Initialization **********/
 // NOTE : Timer 1 is automatically used by serial communication in the way it is configured
 void timer1_init()
@@ -56,8 +60,31 @@ void serial_init()
 	// NOTE: 'RI' AND 'TI' MUST BE CLEARED MANUALLY
 }
 
+/******* Setting up the Serial Communication Interrupt ********/
+
+void serial_interrupt() interrupt 4									// (Address-3)/8 (Address = 23H)
+{
+	// This Interrupt occurs when either TI = '1' or RI = '1'
+	// Things to perform:
+	// 1. Transmit 'A' if TI = '1'
+	
+	if(TI == 1)
+	{
+		TI = 0;
+		SBUF = 'A';
+		LED0 = 1;			// Cleared at the end to ensure that sufficient delay is there
+		acc = 'A' + 0;
+		TB8 = ~PSW^0;
+	}
+	
+	
+	LED0 = 0;
+}
+
 void main()
 {
+	P1 = 0xF0;			// Setting the port LEDs initially to zero
 	timer1_init();
 	serial_init();
+	while(1);
 }
