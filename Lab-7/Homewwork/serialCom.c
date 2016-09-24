@@ -5,7 +5,6 @@
 
 #include "AT89c5131.h"
 
-
 ////////// Defining the Function for timer initializing \\\\\\\\\\
 
 void timer1_init()
@@ -18,18 +17,18 @@ void timer1_init()
 	// 5. Enable the timer
 	
 	// TMOD = 0010 xxxx (1. & 4.)
-	TMOD = TMOD | 20H;		// Making only the desired bits to be '1'
-	TMOD = TMOD & 2FH;		// Making only the desired bits to be '0'
+	TMOD = TMOD | 0x20;		// Making only the desired bits to be '1'
+	TMOD = TMOD & 0x2F;		// Making only the desired bits to be '0'
 	
 	// Setting up the baud rate (2.)
-	TH1  = 0E6H;
-	TL1  = 0E6H;
+	TH1  = 0xE6;
+	TL1  = 0xE6;
 	
 	// Disabling the Interrupt (3.)
 	// IE = xxxx 0xxx
-	IE   =  IE & 0F7H;
+	IEN0 =  IEN0 & 0xF7;
 	
 	// Enabling the Timer1
 	// TCON = 1xxx xxxx
-	TCON = TCON | 80H;
+	TCON = TCON | 0x80;
 }
