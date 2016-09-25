@@ -8,8 +8,9 @@
 #include "AT89c5131.h"
 
 /* Global Variables */
-char acc;			// Used for parity bit's calculation
 sbit LED0 = P1^7;
+sfr acc = 0xE0;
+char character = 'A';
 
 /********* Defining the Function for Timer 1 Initialization **********/
 // NOTE : Timer 1 is automatically used by serial communication in the way it is configured
@@ -48,7 +49,7 @@ void serial_init()
 	
 	// Configuring the Serial Register(2. & 3.)
 	// SM0 = 1 for sending the Data Bit
-	// SM1 = 1 for fixed baud rate
+	// SM1 = 1 for variable baud rate
 	// SM2 = 0 for not having multiprocessor communication 
 	// REN = 1 Recieve Enable
 	SCON = SCON | 0xD0;
@@ -71,10 +72,10 @@ void serial_interrupt() interrupt 4									// (Address-3)/8 (Address = 23H)
 	if(TI == 1)
 	{
 		TI = 0;
-		SBUF = 'A';
-		LED0 = 1;			// Cleared at the end to ensure that sufficient delay is there
-		acc = 'A' + 0;
+		acc = character + 0;
 		TB8 = ~PSW^0;
+		SBUF = character;
+		LED0 = 1;					// Cleared at the end to ensure that sufficient delay is there
 	}
 	
 	
