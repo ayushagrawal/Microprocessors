@@ -28,6 +28,7 @@ sfr acc = 0xE0;
 char character;
 char firstLineCounter = 0;
 char line1cursor;
+char recieved;
 
 char transmission = 0;		// Zero indicates that th transmission is off
 
@@ -47,7 +48,7 @@ void delay_ms(int delay)
 	}
 }
 
-void LCD_WriteString( char * str, unsigned char length)
+void LCD_WriteString( char * str, unsigned char length) reentrant
 {
     while(length>0)
     {
@@ -122,7 +123,7 @@ void serial_interrupt() interrupt 4									// (Address-3)/8 (Address = 23H)
 			transmission = 0;
 			LED0 = ~LED0;					// Cleared at the end to ensure that sufficient delay is there
 			acc = character + 0;
-			TB8 = ~PSW^0;
+			TB8 = PSW^0;
 			delay_ms(100);
 			SBUF = character;
 		}
@@ -130,15 +131,24 @@ void serial_interrupt() interrupt 4									// (Address-3)/8 (Address = 23H)
 	if(RI == 1)
 	{
 		LED1 = ~LED1;
+		acc = SBUF + 0x00;
 		if(firstLineCounter == 16)
 		{
 			firstLineCounter = 0;
 		}
-		// Placing the cursor at appropriate position
-		line1cursor = 0x80 + firstLineCounter;
-		firstLineCounter++;
-		LCD_CmdWrite(line1cursor);
-		LCD_DataWrite(SBUF);
+		if(PSW^0 == RB8)
+		{
+			// Placing the cursor at appropriate position
+			line1cursor = 0x80 + firstLineCounter;
+			firstLineCounter++;
+			LCD_CmdWrite(line1cursor);
+			LCD_DataWrite(SBUF);
+		}
+		else
+		{
+			LCD_CmdWrite(0x80);
+			LCD_WriteString("Error!",6);
+		}
 		RI = 0;
 	}
 }
